@@ -3,6 +3,6 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist/frontend/browser",
   "functions": {
-    "api/chuva.py": { "maxDuration": 60 }
+    "api/chuva.py": { "maxDuration": 60, "regions": ["gru1"] }
   }
 }
