@@ -4,7 +4,7 @@ Interface Angular e serviço Spring Boot para consultar as 29 estações da API 
 
 ## Execução local
 
-Credenciais ficam no `.env` da raiz, que não deve ser versionado. Campos esperados: `keycloak_token`, `simet_url`, `client_id`, `client_secret`, `x-api_key`.
+Credenciais ficam no `.env` da raiz, que não deve ser versionado. Campos esperados: `keycloak_token`, `simet_url`, `client_id`, `client_secret`, `x-api-key`.
 
 ```powershell
 & .\.tools\apache-maven-3.9.11\bin\mvn.cmd -f backend\pom.xml package -DskipTests
@@ -18,7 +18,7 @@ Abra <http://localhost:4200>. O frontend encaminha `/api` ao Spring Boot em `loc
 
 ## Build e publicação na Vercel
 
-O projeto Vercel deve usar **`frontend` como Root Directory**. O arquivo `frontend/vercel.json` já define `npm run build`, o diretório `dist/frontend/browser` e a função `/api/chuva`. Essa função consulta a API SIMET no servidor da Vercel; o Spring Boot continua disponível para a execução local.
+O projeto Vercel deve usar **`frontend` como Root Directory**. O arquivo `frontend/vercel.json` já define `npm run build`, o diretório `dist/frontend/browser` e a função Python `/api/chuva`. O Angular e essa API rodam no mesmo projeto Vercel, sem servidor externo. O Spring Boot continua disponível para a execução local.
 
 No painel da Vercel, importe o repositório GitHub, selecione `frontend` como Root Directory e configure estas variáveis de ambiente no projeto:
 
@@ -26,7 +26,7 @@ No painel da Vercel, importe o repositório GitHub, selecione `frontend` como Ro
 |---|---|
 | `SIMET_CLIENT_ID` | `client_id` recebido da CEPDEC |
 | `SIMET_CLIENT_SECRET` | `client_secret` recebido da CEPDEC |
-| `SIMET_API_KEY` | `x-api_key` recebida da CEPDEC |
+| `SIMET_API_KEY` | `x-api-key` recebida da CEPDEC |
 | `SIMET_TOKEN_URL` | Opcional; URL do Keycloak usada no `.env` local |
 | `SIMET_BASE_URL` | Opcional; URL base HTTPS da API SIMET usada no `.env` local |
 
