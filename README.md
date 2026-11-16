@@ -15,6 +15,30 @@ cd ..
 ```
 
 Abra <http://localhost:4200>. O frontend encaminha `/api` ao Spring Boot em `localhost:8080`.
+
+## Build e publicação na Vercel
+
+O projeto Vercel deve usar **`frontend` como Root Directory**. O arquivo `frontend/vercel.json` já define `npm run build`, o diretório `dist/frontend/browser` e a função `/api/chuva`. Essa função consulta a API SIMET no servidor da Vercel; o Spring Boot continua disponível para a execução local.
+
+No painel da Vercel, importe o repositório GitHub, selecione `frontend` como Root Directory e configure estas variáveis de ambiente no projeto:
+
+| Nome | Valor |
+|---|---|
+| `SIMET_CLIENT_ID` | `client_id` recebido da CEPDEC |
+| `SIMET_CLIENT_SECRET` | `client_secret` recebido da CEPDEC |
+| `SIMET_API_KEY` | `x-api_key` recebida da CEPDEC |
+| `SIMET_TOKEN_URL` | Opcional; URL do Keycloak usada no `.env` local |
+| `SIMET_BASE_URL` | Opcional; URL base HTTPS da API SIMET usada no `.env` local |
+
+As três primeiras são obrigatórias. Os valores não devem ser adicionados ao repositório nem ao código Angular. Após configurar as variáveis, execute **Deploy** ou **Redeploy** na Vercel. Confira a página e a resposta de `/api/chuva` no domínio publicado.
+
+Para validar o build antes de publicar:
+
+```powershell
+cd frontend
+npm ci
+npm run build
+```
 # teste
 # teste
 # teste
