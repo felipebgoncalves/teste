@@ -26,10 +26,11 @@ _token_expira = 0.0
 
 
 class UpstreamHTTPError(Exception):
-    def __init__(self, origem, codigo):
+    def __init__(self, origem, codigo, tipo=""):
         super().__init__(f"{origem} HTTP {codigo}")
         self.origem = origem
         self.codigo = codigo
+        self.tipo = tipo
 
 
 def _access_token():
@@ -53,7 +54,8 @@ def _access_token():
         with urlopen(request, timeout=20) as response:
             result = json.load(response)
     except HTTPError as error:
-        raise UpstreamHTTPError("Keycloak", error.code) from error
+        tipo = (error.headers.get("Content-Type") or "").split(";")[0].lower()
+        raise UpstreamHTTPError("Keycloak", error.code, tipo) from error
     _token = result["access_token"]
     _token_expira = time.time() + max(30, int(result.get("expires_in", 300)) - 30)
     return _token
@@ -155,7 +157,8 @@ class handler(BaseHTTPRequestHandler):
         try:
             self._json(200, chuva())
         except UpstreamHTTPError as error:
-            self._json(error.codigo, {"erro": f"{error.origem} respondeu com HTTP {error.codigo}."})
+            detalhe = " (resposta HTML)" if error.tipo == "text/html" else ""
+            self._json(error.codigo, {"erro": f"{error.origem} respondeu com HTTP {error.codigo}{detalhe}."})
         except Exception:
             self._json(502, {"erro": "Não foi possível consultar a API SIMET."})
 
