@@ -30,7 +30,7 @@ No painel da Vercel, importe o repositório GitHub, selecione `frontend` como Ro
 | `SIMET_TOKEN_URL` | Opcional; URL do Keycloak usada no `.env` local |
 | `SIMET_BASE_URL` | Opcional; URL base HTTPS da API SIMET usada no `.env` local |
 
-As três primeiras são obrigatórias. Os valores não devem ser adicionados ao repositório nem ao código Angular. Após configurar as variáveis, execute **Deploy** ou **Redeploy** na Vercel. Confira a página e a resposta de `/api/chuva` no domínio publicado.
+As três primeiras são obrigatórias. A função também aceita os nomes já usados no projeto Vercel `simet_es`: `client_id`, `client_secret`, `X_API_Key`, `keycloak_token` e `simet_url`. Os valores não devem ser adicionados ao repositório nem ao código Angular. Após configurar as variáveis, execute **Deploy** ou **Redeploy** na Vercel. Confira a página e a resposta de `/api/chuva` no domínio publicado.
 
 Para validar o build antes de publicar:
 

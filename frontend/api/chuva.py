@@ -12,9 +12,15 @@ from urllib.request import Request, urlopen
 
 TOKEN_URL = os.environ.get(
     "SIMET_TOKEN_URL",
-    "https://sistemas.cb.es.gov.br/keycloak/realms/sistemas-cepdec/protocol/openid-connect/token",
+    os.environ.get(
+        "keycloak_token",
+        "https://sistemas.cb.es.gov.br/keycloak/realms/sistemas-cepdec/protocol/openid-connect/token",
+    ),
 )
-BASE_URL = os.environ.get("SIMET_BASE_URL", "https://sistemas.cb.es.gov.br/simet-api/")
+BASE_URL = os.environ.get("SIMET_BASE_URL") or os.environ.get("simet_url") or "https://sistemas.cb.es.gov.br/simet-api/"
+CLIENT_ID = os.environ.get("SIMET_CLIENT_ID") or os.environ.get("client_id")
+CLIENT_SECRET = os.environ.get("SIMET_CLIENT_SECRET") or os.environ.get("client_secret")
+API_KEY = os.environ.get("SIMET_API_KEY") or os.environ.get("X_API_Key")
 _token = None
 _token_expira = 0.0
 
@@ -26,8 +32,8 @@ def _access_token():
     body = urlencode(
         {
             "grant_type": "client_credentials",
-            "client_id": os.environ["SIMET_CLIENT_ID"],
-            "client_secret": os.environ["SIMET_CLIENT_SECRET"],
+            "client_id": CLIENT_ID,
+            "client_secret": CLIENT_SECRET,
         }
     ).encode()
     request = Request(
@@ -53,7 +59,7 @@ def _simet_get(path, params=None):
             url,
             headers={
                 "Authorization": "Bearer " + _access_token(),
-                "X-API-Key": os.environ["SIMET_API_KEY"],
+                "X-API-Key": API_KEY,
                 "Accept": "application/json",
             },
         )
@@ -133,7 +139,7 @@ def chuva():
 
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
-        if not all(os.environ.get(name) for name in ("SIMET_CLIENT_ID", "SIMET_CLIENT_SECRET", "SIMET_API_KEY")):
+        if not all((CLIENT_ID, CLIENT_SECRET, API_KEY)):
             self._json(503, {"erro": "Configure as credenciais da API SIMET na Vercel."})
             return
         try:
