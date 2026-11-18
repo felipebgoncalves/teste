@@ -10,12 +10,10 @@ from urllib.parse import urlencode, urljoin
 from urllib.request import Request, urlopen
 
 
-TOKEN_URL = os.environ.get(
-    "SIMET_TOKEN_URL",
-    os.environ.get(
-        "keycloak_token",
-        "https://sistemas.cb.es.gov.br/keycloak/realms/sistemas-cepdec/protocol/openid-connect/token",
-    ),
+TOKEN_URL = (
+    os.environ.get("SIMET_TOKEN_URL")
+    or os.environ.get("keycloak_token")
+    or "https://sistemas.cb.es.gov.br/keycloak/realms/sistemas-cepdec/protocol/openid-connect/token"
 )
 BASE_URL = os.environ.get("SIMET_BASE_URL") or os.environ.get("simet_url") or "https://sistemas.cb.es.gov.br/simet-api/"
 CLIENT_ID = os.environ.get("SIMET_CLIENT_ID") or os.environ.get("client_id")
@@ -149,24 +147,28 @@ def chuva():
     }
 
 
+def chuva_response():
+    if not all((CLIENT_ID, CLIENT_SECRET, API_KEY)):
+        return 503, {"erro": "Configure as credenciais da API SIMET."}
+    try:
+        return 200, chuva()
+    except UpstreamHTTPError as error:
+        detalhe = " (resposta HTML)" if error.tipo == "text/html" else ""
+        return error.codigo, {"erro": f"{error.origem} respondeu com HTTP {error.codigo}{detalhe}."}
+    except Exception:
+        return 502, {"erro": "Não foi possível consultar a API SIMET."}
+
+
+def write_json(response, status, data):
+    body = json.dumps(data, ensure_ascii=False).encode("utf-8")
+    response.send_response(status)
+    response.send_header("Content-Type", "application/json; charset=utf-8")
+    response.send_header("Cache-Control", "no-store")
+    response.send_header("Content-Length", str(len(body)))
+    response.end_headers()
+    response.wfile.write(body)
+
+
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
-        if not all((CLIENT_ID, CLIENT_SECRET, API_KEY)):
-            self._json(503, {"erro": "Configure as credenciais da API SIMET na Vercel."})
-            return
-        try:
-            self._json(200, chuva())
-        except UpstreamHTTPError as error:
-            detalhe = " (resposta HTML)" if error.tipo == "text/html" else ""
-            self._json(error.codigo, {"erro": f"{error.origem} respondeu com HTTP {error.codigo}{detalhe}."})
-        except Exception:
-            self._json(502, {"erro": "Não foi possível consultar a API SIMET."})
-
-    def _json(self, status, data):
-        body = json.dumps(data, ensure_ascii=False).encode("utf-8")
-        self.send_response(status)
-        self.send_header("Content-Type", "application/json; charset=utf-8")
-        self.send_header("Cache-Control", "no-store")
-        self.send_header("Content-Length", str(len(body)))
-        self.end_headers()
-        self.wfile.write(body)
+        write_json(self, *chuva_response())

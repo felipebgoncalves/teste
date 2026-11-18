@@ -1,24 +1,20 @@
 # Painel SIMET ES
 
-Interface Angular e serviço Spring Boot para consultar as 29 estações da API SIMET ES. O backend obtém o JWT por `client_credentials`, envia a `X-API-Key`, consulta as estações e percorre as páginas de observações de 15 minutos para calcular a chuva nas últimas 24 horas. Uma estação sem observações aparece como **Sem dados**, não como 0 mm.
+Interface Angular e API Python para consultar as 29 estações da API SIMET ES. A API obtém o JWT por `client_credentials`, envia a `X-API-Key`, consulta as estações e percorre as páginas de observações de 15 minutos para calcular a chuva nas últimas 24 horas. Uma estação sem observações aparece como **Sem dados**, não como 0 mm.
 
 ## Execução local
 
 Credenciais ficam no `.env` da raiz, que não deve ser versionado. Campos esperados: `keycloak_token`, `simet_url`, `client_id`, `client_secret`, `x-api-key`.
 
 ```powershell
-& .\.tools\apache-maven-3.9.11\bin\mvn.cmd -f backend\pom.xml package -DskipTests
-cd frontend
-npm install
-cd ..
 .\start-local.ps1
 ```
 
-Abra <http://localhost:4200>. O frontend encaminha `/api` ao Spring Boot em `localhost:8080`.
+Abra <http://127.0.0.1:4200>. O script compila o Angular e serve a página e `/api/chuva` no mesmo processo Python. Para ver alterações no Angular, execute o script novamente.
 
 ## Build e publicação na Vercel
 
-O projeto Vercel deve usar **`frontend` como Root Directory**. O arquivo `frontend/vercel.json` já define `npm run build`, o diretório `dist/frontend/browser` e a função Python `/api/chuva`. O Angular e essa API rodam no mesmo projeto Vercel, sem servidor externo. O Spring Boot continua disponível para a execução local.
+O projeto Vercel deve usar **`frontend` como Root Directory**. O arquivo `frontend/vercel.json` já define `npm run build`, o diretório `dist/frontend/browser` e a função Python `/api/chuva`. O Angular e essa API rodam no mesmo projeto Vercel, sem servidor externo.
 
 No painel da Vercel, importe o repositório GitHub, selecione `frontend` como Root Directory e configure estas variáveis de ambiente no projeto:
 
@@ -39,6 +35,3 @@ cd frontend
 npm ci
 npm run build
 ```
-# teste
-# teste
-# teste
